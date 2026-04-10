@@ -87,9 +87,8 @@ const SECTIONS = [
 
 export default function BookingForm() {
   const searchParams = useSearchParams();
-  const bookingId = searchParams.get('id');
+  const bookingId = searchParams?.get('id');
   const router = useRouter();
-
 
   const [properties, setProperties] = useState([]);
   const [focused, setFocused] = useState(null);
@@ -169,7 +168,7 @@ export default function BookingForm() {
       }
 
     } catch (err) {
-      alert(err.errors?.[0]?.message || error);
+      alert(err.errors?.[0]?.message || err.message);
     }
   };
 

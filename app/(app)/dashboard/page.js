@@ -1,5 +1,6 @@
 'use client';
 import BookingForm from '@/components/BookingForm';
+export const dynamic = "force-dynamic";
 
 export default function Dashboard() {
     return (
