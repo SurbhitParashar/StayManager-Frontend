@@ -1,6 +1,7 @@
 'use client';
 import BookingForm from '@/components/BookingForm';
 export const dynamic = "force-dynamic";
+import { Suspense } from 'react';
 
 export default function Dashboard() {
     return (
@@ -10,7 +11,7 @@ export default function Dashboard() {
             minHeight: '100vh',
             padding: '36px 32px',
         }}>
-           
+
 
             {/* Page Title */}
             <div style={{ marginBottom: '24px' }}>
@@ -24,7 +25,10 @@ export default function Dashboard() {
 
             {/* Main Layout */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '20px', alignItems: 'start' }}>
-                <BookingForm />
+                
+                <Suspense fallback={<div>Loading...</div>}>
+                    <BookingForm />
+                </Suspense>
 
                 {/* Sidebar */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
