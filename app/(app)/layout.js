@@ -3,7 +3,7 @@ import '../globals.css';
 
 export default function RootLayout({ children }) {
   return (
-    <html>
+    <html lang="en">
       <body style={{
         fontFamily: "'DM Sans', sans-serif",
         background: '#F5F3EE',

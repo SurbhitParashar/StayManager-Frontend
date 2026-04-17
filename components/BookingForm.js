@@ -133,6 +133,7 @@ export default function BookingForm() {
 
 
   useEffect(() => {
+    console.log('Loading properties...');
     API.get('/properties')
       .then(res => setProperties(res.data))
       .catch(() => alert('Failed to load properties'));
