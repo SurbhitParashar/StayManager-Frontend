@@ -106,6 +106,19 @@ export default function ReservationForm() {
       .then((res) => {
         const data = res.data;
         setGuestId(data.guest_id || '');
+        setGuest({
+          first_name: data.first_name || '',
+          middle_initial: data.middle_initial || '',
+          last_name: data.last_name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          address_line1: data.address_line1 || '',
+          address_line2: data.address_line2 || '',
+          city: data.city || '',
+          state: data.state || '',
+          postal_code: data.postal_code || '',
+          country: data.country || 'USA',
+        });
         setReservation({
           property_id: data.property_id || '',
           source: data.source || 'vrbo',
@@ -153,7 +166,7 @@ export default function ReservationForm() {
         adult_count: Number(reservation.adult_count || 0),
         child_count: Number(reservation.child_count || 0),
         guest_id: guestId || undefined,
-        guest: guestId ? undefined : guest,
+        guest,
         financials: {
           ...financials,
           amount_paid_to_vrbo: amountPaidToVrbo,
