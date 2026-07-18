@@ -7,7 +7,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const items = [
-    { name: 'Bookings', path: '/dashboard' },
+    { name: 'Reservations', path: '/dashboard' },
     { name: 'History', path: '/history' },
     { name: 'Reports', path: '/reports' }
   ];

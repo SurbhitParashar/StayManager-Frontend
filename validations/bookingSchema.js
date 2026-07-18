@@ -26,7 +26,9 @@ export const bookingSchema = z.object({
     'cash transaction'
   ]),
 
-  status: z.enum(['booked', 'cancelled'])
+  status: z.enum(['booked', 'cancelled']),
+
+  notes: z.string().max(1000, 'Notes must be 1000 characters or less').optional()
 
 }).refine(data =>
   new Date(data.end_date) > new Date(data.start_date),

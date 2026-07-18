@@ -1,12 +1,11 @@
 'use client';
 
-import BookingTable from '../../../components/BookingTable';
+import ReservationTable from '../../../components/reservations/ReservationTable';
 
 export default function HistoryPage() {
   return (
     <div style={{ padding: 20 }}>
-      <h2 style={{color:'black'}}>Booking History</h2>
-      <BookingTable />
+      <ReservationTable />
     </div>
   );
 }

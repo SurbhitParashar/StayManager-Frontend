@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import API from '@/services/api';
 
 import KPISection from './KPISection';
 import RevenueChart from './RevenueChart';
@@ -9,32 +8,63 @@ import PlatformPieChart from './PlatformPieChart';
 import PropertyPerformanceChart from './PropertyPerformanceChart';
 
 import {
-    calculateKPIs,
-    monthlyRevenueData,
-    platformDistributionData,
-    propertyRevenueData,
-} from './analytics/bookingAnalytics';
+    getPropertyPerformanceReport,
+    getReportKpis,
+    getRevenueReport,
+    getSourceBreakdownReport,
+} from '@/services/reports';
 
 export default function ReportsDashboard() {
-    const [bookings, setBookings] = useState([]);
+    const [kpis, setKpis] = useState({
+        totalRevenue: 0,
+        totalBookings: 0,
+        averageBookingValue: 0,
+    });
+    const [revenue, setRevenue] = useState([]);
+    const [sourceBreakdown, setSourceBreakdown] = useState([]);
+    const [propertyPerformance, setPropertyPerformance] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchBookings();
+        fetchReports();
     }, []);
 
-    const fetchBookings = async () => {
+    const fetchReports = async () => {
         try {
-            const res = await API.get('/booking');
-            setBookings(res.data);
+            const [kpiRes, revenueRes, sourceRes, propertyRes] = await Promise.all([
+                getReportKpis(),
+                getRevenueReport(),
+                getSourceBreakdownReport(),
+                getPropertyPerformanceReport(),
+            ]);
+
+            setKpis({
+                totalRevenue: Number(kpiRes.data.total_revenue || 0),
+                totalBookings: Number(kpiRes.data.total_reservations || 0),
+                averageBookingValue: Number(kpiRes.data.average_reservation_value || 0),
+            });
+
+            setRevenue(revenueRes.data.map((row) => ({
+                month: row.month,
+                revenue: Number(row.revenue || 0),
+            })));
+
+            const totalSources = sourceRes.data.reduce((sum, row) => sum + Number(row.reservations || 0), 0);
+            setSourceBreakdown(sourceRes.data.map((row) => ({
+                name: row.source,
+                value: totalSources > 0 ? Math.round((Number(row.reservations || 0) / totalSources) * 100) : 0,
+            })));
+
+            setPropertyPerformance(propertyRes.data.map((row) => ({
+                property: row.property_name,
+                revenue: Number(row.revenue || 0),
+            })));
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
         }
     };
-
-    const kpis = calculateKPIs(bookings);
 
     if (loading) {
         return (
@@ -60,8 +90,6 @@ export default function ReportsDashboard() {
             background: '#F9F9F8',
             minHeight: '100vh',
         }}>
-
-            {/* Header */}
             <div style={{ marginBottom: '4px' }}>
                 <h1 style={{
                     margin: '0 0 4px',
@@ -77,26 +105,22 @@ export default function ReportsDashboard() {
                     fontSize: '13px',
                     color: '#9CA3AF',
                 }}>
-                    Overview of your booking performance
+                    Overview of reservation performance
                 </p>
             </div>
 
-            {/* KPIs */}
             <KPISection kpis={kpis} />
 
-            {/* Charts — top row: Revenue (wider) + Pie */}
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
                 gap: '16px',
             }}>
-                <RevenueChart data={monthlyRevenueData(bookings)} />
-                <PlatformPieChart data={platformDistributionData(bookings)} />
+                <RevenueChart data={revenue} />
+                <PlatformPieChart data={sourceBreakdown} />
             </div>
 
-            {/* Charts — bottom row: Property Performance full width */}
-            <PropertyPerformanceChart data={propertyRevenueData(bookings)} />
-
+            <PropertyPerformanceChart data={propertyPerformance} />
         </div>
     );
 }
