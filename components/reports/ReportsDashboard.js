@@ -1,11 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import KPISection from './KPISection';
 import RevenueChart from './RevenueChart';
 import PlatformPieChart from './PlatformPieChart';
 import PropertyPerformanceChart from './PropertyPerformanceChart';
+import ReservationFilters, {
+    cleanReservationFilters,
+    emptyReservationFilters,
+} from '@/components/reservations/ReservationFilters';
 
 import {
     getPropertyPerformanceReport,
@@ -23,19 +27,19 @@ export default function ReportsDashboard() {
     const [revenue, setRevenue] = useState([]);
     const [sourceBreakdown, setSourceBreakdown] = useState([]);
     const [propertyPerformance, setPropertyPerformance] = useState([]);
+    const [filters, setFilters] = useState(emptyReservationFilters);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchReports();
-    }, []);
+    const fetchReports = useCallback(async (nextFilters) => {
+        const params = cleanReservationFilters(nextFilters);
 
-    const fetchReports = async () => {
         try {
+            setLoading(true);
             const [kpiRes, revenueRes, sourceRes, propertyRes] = await Promise.all([
-                getReportKpis(),
-                getRevenueReport(),
-                getSourceBreakdownReport(),
-                getPropertyPerformanceReport(),
+                getReportKpis(params),
+                getRevenueReport(params),
+                getSourceBreakdownReport(params),
+                getPropertyPerformanceReport(params),
             ]);
 
             setKpis({
@@ -64,9 +68,26 @@ export default function ReportsDashboard() {
         } finally {
             setLoading(false);
         }
+    }, []);
+
+    useEffect(() => {
+        fetchReports(emptyReservationFilters);
+    }, [fetchReports]);
+
+    const setFilter = (field, value) => {
+        setFilters((prev) => ({ ...prev, [field]: value }));
     };
 
-    if (loading) {
+    const applyFilters = () => fetchReports(filters);
+
+    const clearFilters = () => {
+        setFilters(emptyReservationFilters);
+        fetchReports(emptyReservationFilters);
+    };
+
+    const hasLoadedData = revenue.length > 0 || sourceBreakdown.length > 0 || propertyPerformance.length > 0 || kpis.totalBookings > 0;
+
+    if (loading && !hasLoadedData) {
         return (
             <div style={{
                 display: 'flex',
@@ -105,8 +126,22 @@ export default function ReportsDashboard() {
                     fontSize: '13px',
                     color: '#9CA3AF',
                 }}>
-                    Overview of reservation performance
+                    {loading ? 'Refreshing reservation performance...' : 'Overview of reservation performance'}
                 </p>
+            </div>
+
+            <div style={{
+                background: '#fff',
+                border: '1px solid #EBEBEB',
+                borderRadius: '8px',
+                overflow: 'hidden',
+            }}>
+                <ReservationFilters
+                    filters={filters}
+                    onFilterChange={setFilter}
+                    onApply={applyFilters}
+                    onClear={clearFilters}
+                />
             </div>
 
             <KPISection kpis={kpis} />

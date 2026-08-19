@@ -144,7 +144,12 @@ export default function ReservationDetail({ id }) {
 }
 
 function Metric({ label, value }) {
-  return <div style={styles.metric}><span>{label}</span><strong>{value}</strong></div>;
+  return (
+    <div style={styles.metric}>
+      <span style={styles.metricLabel}>{label}</span>
+      <strong style={styles.metricValue}>{value}</strong>
+    </div>
+  );
 }
 
 function money(value) {
@@ -157,14 +162,16 @@ function formatDate(value) {
 }
 
 const styles = {
-  wrap: { padding: 20, display: 'grid', gap: 16 },
+  wrap: { padding: 20, display: 'grid', gap: 16, color: '#111827' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   title: { margin: 0, fontSize: 24, color: '#1A1A1A' },
-  sub: { margin: '4px 0 0', color: '#6B6860' },
-  card: { background: '#fff', border: '1px solid #E4E2DC', borderRadius: 12, padding: 18 },
+  sub: { margin: '4px 0 0', color: '#374151', fontWeight: 500 },
+  card: { background: '#fff', border: '1px solid #E4E2DC', borderRadius: 12, padding: 18, color: '#111827' },
   cardTitle: { margin: '0 0 12px', fontSize: 15, color: '#1A1A1A' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
-  metric: { display: 'grid', gap: 5, padding: 12, background: '#FAFAF8', borderRadius: 8 },
+  metric: { display: 'grid', gap: 5, padding: 12, background: '#FAFAF8', borderRadius: 8, color: '#111827' },
+  metricLabel: { color: '#374151', fontSize: 12, fontWeight: 700 },
+  metricValue: { color: '#111827', fontSize: 14, fontWeight: 700 },
   formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 10, alignItems: 'center' },
   input: {
     padding: '10px 12px',
@@ -177,6 +184,6 @@ const styles = {
     opacity: 1,
   },
   darkBtn: { border: 0, background: '#1A1A1A', color: '#fff', borderRadius: 8, padding: '10px 14px', cursor: 'pointer' },
-  check: { fontSize: 13, color: '#3D3C38' },
-  payment: { padding: 10, borderBottom: '1px solid #F0EEE8', fontSize: 13 },
+  check: { fontSize: 13, color: '#111827', fontWeight: 600 },
+  payment: { padding: 10, borderBottom: '1px solid #F0EEE8', fontSize: 13, color: '#111827', fontWeight: 500 },
 };

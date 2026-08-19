@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteReservation, listReservations } from '@/services/reservations';
 import { exportReservationsToExcel } from './exportReservations';
+import ReservationFilters, { cleanReservationFilters, emptyReservationFilters } from './ReservationFilters';
 
 const sourceLabels = {
   vrbo: 'VRBO',
@@ -19,12 +20,12 @@ const sourceLabels = {
 export default function ReservationTable() {
   const router = useRouter();
   const [reservations, setReservations] = useState([]);
-  const [filters, setFilters] = useState({ search: '', source: '', status: '', start_date: '', end_date: '' });
+  const [filters, setFilters] = useState(emptyReservationFilters);
   const [loading, setLoading] = useState(true);
 
   const fetchReservations = (nextFilters = filters) => {
     setLoading(true);
-    listReservations({ ...nextFilters, limit: 100 })
+    listReservations({ ...cleanReservationFilters(nextFilters), limit: 100 })
       .then((res) => setReservations(res.data))
       .catch(() => alert('Failed to load reservations'))
       .finally(() => setLoading(false));
@@ -55,6 +56,11 @@ export default function ReservationTable() {
 
   const applyFilters = () => fetchReservations(filters);
 
+  const clearFilters = () => {
+    setFilters(emptyReservationFilters);
+    fetchReservations(emptyReservationFilters);
+  };
+
   const remove = async (id) => {
     if (!confirm('Delete this reservation?')) return;
     await deleteReservation(id);
@@ -74,23 +80,12 @@ export default function ReservationTable() {
         </div>
       </div>
 
-      <div style={styles.filters}>
-        <input style={styles.input} placeholder="Search guest" value={filters.search} onChange={(e) => setFilter('search', e.target.value)} />
-        <select style={styles.input} value={filters.source} onChange={(e) => setFilter('source', e.target.value)}>
-          <option value="">All sources</option>
-          {Object.entries(sourceLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select>
-        <select style={styles.input} value={filters.status} onChange={(e) => setFilter('status', e.target.value)}>
-          <option value="">All statuses</option>
-          <option value="inquiry">Inquiry</option>
-          <option value="booked">Booked</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="completed">Completed</option>
-        </select>
-        <input style={styles.input} type="date" value={filters.start_date} onChange={(e) => setFilter('start_date', e.target.value)} />
-        <input style={styles.input} type="date" value={filters.end_date} onChange={(e) => setFilter('end_date', e.target.value)} />
-        <button style={styles.secondaryBtn} onClick={applyFilters}>Apply</button>
-      </div>
+      <ReservationFilters
+        filters={filters}
+        onFilterChange={setFilter}
+        onApply={applyFilters}
+        onClear={clearFilters}
+      />
 
       <div style={{ overflowX: 'auto' }}>
         <table style={styles.table}>
@@ -152,25 +147,6 @@ const styles = {
   },
   title: { margin: 0, fontSize: '18px', color: '#1A1A1A' },
   subtitle: { margin: '4px 0 0', fontSize: '13px', color: '#9E9C97' },
-  filters: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr auto',
-    gap: '10px',
-    padding: '14px 22px',
-    borderBottom: '1px solid #E4E2DC',
-    background: '#FAFAF8',
-  },
-  input: {
-    padding: '9px 10px',
-    border: '1px solid #E4E2DC',
-    borderRadius: '8px',
-    fontSize: '13px',
-    color: '#111827',
-    background: '#FFFFFF',
-    fontWeight: 500,
-    lineHeight: '1.35',
-    opacity: 1,
-  },
   table: { width: '100%', borderCollapse: 'collapse' },
   th: {
     padding: '12px 16px',
@@ -186,6 +162,6 @@ const styles = {
   notes: { display: 'block', maxWidth: '240px', overflowWrap: 'anywhere', color: '#6B6860' },
   primaryBtn: { border: 'none', background: '#1A1A1A', color: '#fff', borderRadius: '8px', padding: '10px 14px', cursor: 'pointer' },
   secondaryBtn: { border: '1px solid #E4E2DC', background: '#fff', color: '#6B6860', borderRadius: '8px', padding: '9px 12px', cursor: 'pointer' },
-  smallBtn: { margin: '0 3px', border: '1px solid #C8D9F8', background: '#EEF4FF', color: '#1A56DB', borderRadius: '7px', padding: '7px 9px', cursor: 'pointer' },
+  smallBtn: { margin: '0 3px', border: '1px solid #C8D9F8', background: '#EEF4FF', color: '#111827', borderRadius: '7px', padding: '7px 9px', cursor: 'pointer', fontWeight: 600 },
   dangerBtn: { borderColor: '#F4C0BC', background: '#FFF0F0', color: '#C5221F' },
 };
