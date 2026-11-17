@@ -1,15 +1,18 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, can, logout } = useAuth();
 
   const items = [
-    { name: 'Reservations', path: '/dashboard' },
+    ...(can('data.write') ? [{ name: 'Reservations', path: '/dashboard' }] : []),
     { name: 'History', path: '/history' },
-    { name: 'Reports', path: '/reports' }
+    { name: 'Reports', path: '/reports' },
+    ...(can('users.manage') ? [{ name: 'Users', path: '/users' }] : [])
   ];
 
   return (
@@ -86,8 +89,10 @@ export default function Navbar() {
           fontWeight: '700',
           color: '#fff',
         }}>
-          BJ
+          {user.role}
         </div>
+        <span style={{ fontSize: 12 }}>{user.email}</span>
+        <button onClick={logout}>Sign out</button>
       </div>
     </div>
   );

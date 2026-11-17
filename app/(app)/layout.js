@@ -1,10 +1,11 @@
 import Navbar from '@/components/Navbar';
+import AuthProvider from '@/components/AuthProvider';
 import '../globals.css';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body style={{
+    <AuthProvider>
+      <div style={{
         fontFamily: "'DM Sans', sans-serif",
         background: '#F5F3EE',
         minHeight: '100vh',
@@ -12,7 +13,7 @@ export default function RootLayout({ children }) {
       }}>
         <Navbar />
         {children}
-      </body>
-    </html>
+      </div>
+    </AuthProvider>
   );
 }

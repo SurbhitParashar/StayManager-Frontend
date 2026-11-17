@@ -1,17 +1,5 @@
-'use client';
-
-import { useEffect } from 'react';
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  useEffect(() => {
-    const tokenExists = document.cookie.includes('token');
-
-    if (tokenExists) {
-      window.location.href = '/dashboard';
-    } else {
-      window.location.href = '/login';
-    }
-  }, []);
-
-  return <p>Loading...</p>;
+  redirect('/history');
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { deleteReservation, listReservations } from '@/services/reservations';
 import { exportReservationsToExcel } from './exportReservations';
@@ -19,6 +20,7 @@ const sourceLabels = {
 
 export default function ReservationTable() {
   const router = useRouter();
+  const { can } = useAuth();
   const [reservations, setReservations] = useState([]);
   const [filters, setFilters] = useState(emptyReservationFilters);
   const [loading, setLoading] = useState(true);
@@ -76,7 +78,7 @@ export default function ReservationTable() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={styles.secondaryBtn} onClick={() => exportReservationsToExcel(reservations)}>Export Excel</button>
-          <button style={styles.primaryBtn} onClick={() => router.push('/dashboard')}>New Reservation</button>
+          {can('data.write') && <button style={styles.primaryBtn} onClick={() => router.push('/dashboard')}>New Reservation</button>}
         </div>
       </div>
 
@@ -116,9 +118,9 @@ export default function ReservationTable() {
                 <td style={styles.td}>{reservation.status}</td>
                 <td style={styles.td}><span style={styles.notes}>{reservation.notes || 'No notes'}</span></td>
                 <td style={{ ...styles.td, textAlign: 'center' }}>
-                  <button style={styles.smallBtn} onClick={() => router.push(`/dashboard?reservationId=${reservation.id}`)}>Edit</button>
+                  {can('data.write') && <button style={styles.smallBtn} onClick={() => router.push(`/dashboard?reservationId=${reservation.id}`)}>Edit</button>}
                   <button style={styles.smallBtn} onClick={() => router.push(`/reservations/${reservation.id}`)}>View</button>
-                  <button style={{ ...styles.smallBtn, ...styles.dangerBtn }} onClick={() => remove(reservation.id)}>Delete</button>
+                  {can('data.delete') && <button style={{ ...styles.smallBtn, ...styles.dangerBtn }} onClick={() => remove(reservation.id)}>Delete</button>}
                 </td>
               </tr>
             ))}
