@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { getReservation } from '@/services/reservations';
 import { updateAgreement, updateReview } from '@/services/workflows';
 
 export default function ReservationDetail({ id }) {
   const router = useRouter();
+  const { can } = useAuth();
   const [reservation, setReservation] = useState(null);
   const [agreement, setAgreement] = useState({ status: 'not_sent', sent_at: '', received_at: '', notes: '' });
   const [review, setReview] = useState({ received: false, rating: '', review_text: '', received_at: '' });
@@ -54,7 +56,7 @@ export default function ReservationDetail({ id }) {
           <h1 style={styles.title}>{reservation.first_name} {reservation.last_name}</h1>
           <p style={styles.sub}>{reservation.property_name} | {reservation.arrival_date} to {reservation.departure_date}</p>
         </div>
-        <button style={styles.darkBtn} onClick={() => router.push(`/dashboard?reservationId=${id}`)}>Edit</button>
+        {can('data.write') && <button style={styles.darkBtn} onClick={() => router.push(`/dashboard?reservationId=${id}`)}>Edit</button>}
       </div>
 
       <section style={styles.card}>
@@ -108,27 +110,27 @@ export default function ReservationDetail({ id }) {
       <section style={styles.card}>
         <h2 style={styles.cardTitle}>Rental Agreement</h2>
         <div style={styles.formGrid}>
-          <select style={styles.input} value={agreement.status} onChange={(e) => setAgreement({ ...agreement, status: e.target.value })}>
+          <select disabled={!can('data.write')} style={styles.input} value={agreement.status} onChange={(e) => setAgreement({ ...agreement, status: e.target.value })}>
             <option value="not_sent">Not Sent</option>
             <option value="sent">Sent</option>
             <option value="received">Received</option>
             <option value="waived">Waived</option>
           </select>
-          <input style={styles.input} type="date" value={agreement.sent_at} onChange={(e) => setAgreement({ ...agreement, sent_at: e.target.value })} />
-          <input style={styles.input} type="date" value={agreement.received_at} onChange={(e) => setAgreement({ ...agreement, received_at: e.target.value })} />
-          <button style={styles.darkBtn} onClick={saveAgreement}>Save</button>
+          <input disabled={!can('data.write')} style={styles.input} type="date" value={agreement.sent_at} onChange={(e) => setAgreement({ ...agreement, sent_at: e.target.value })} />
+          <input disabled={!can('data.write')} style={styles.input} type="date" value={agreement.received_at} onChange={(e) => setAgreement({ ...agreement, received_at: e.target.value })} />
+          {can('data.write') && <button style={styles.darkBtn} onClick={saveAgreement}>Save</button>}
         </div>
       </section>
 
       <section style={styles.card}>
         <h2 style={styles.cardTitle}>Review</h2>
         <div style={styles.formGrid}>
-          <label style={styles.check}><input type="checkbox" checked={review.received} onChange={(e) => setReview({ ...review, received: e.target.checked })} /> Received</label>
-          <input style={styles.input} type="number" min="1" max="10" placeholder="Rating 1-10" value={review.rating} onChange={(e) => setReview({ ...review, rating: e.target.value })} />
-          <input style={styles.input} type="date" value={review.received_at} onChange={(e) => setReview({ ...review, received_at: e.target.value })} />
-          <button style={styles.darkBtn} onClick={saveReview}>Save</button>
+          <label style={styles.check}><input disabled={!can('data.write')} type="checkbox" checked={review.received} onChange={(e) => setReview({ ...review, received: e.target.checked })} /> Received</label>
+          <input disabled={!can('data.write')} style={styles.input} type="number" min="1" max="10" placeholder="Rating 1-10" value={review.rating} onChange={(e) => setReview({ ...review, rating: e.target.value })} />
+          <input disabled={!can('data.write')} style={styles.input} type="date" value={review.received_at} onChange={(e) => setReview({ ...review, received_at: e.target.value })} />
+          {can('data.write') && <button style={styles.darkBtn} onClick={saveReview}>Save</button>}
         </div>
-        <textarea style={{ ...styles.input, marginTop: 10, minHeight: 80 }} placeholder="Review text" value={review.review_text} onChange={(e) => setReview({ ...review, review_text: e.target.value })} />
+        <textarea disabled={!can('data.write')} style={{ ...styles.input, marginTop: 10, minHeight: 80 }} placeholder="Review text" value={review.review_text} onChange={(e) => setReview({ ...review, review_text: e.target.value })} />
       </section>
 
       <section style={styles.card}>

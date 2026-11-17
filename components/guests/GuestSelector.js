@@ -28,11 +28,8 @@ const labelStyle = {
 export default function GuestSelector({ value, guest, onGuestIdChange, onGuestChange }) {
   const [search, setSearch] = useState('');
   const [guests, setGuests] = useState([]);
-  const [mode, setMode] = useState(value ? 'existing' : 'new');
-
-  useEffect(() => {
-    if (value) setMode('existing');
-  }, [value]);
+  const [selectedMode, setMode] = useState(value ? 'existing' : 'new');
+  const mode = value ? 'existing' : selectedMode;
 
   useEffect(() => {
     let mounted = true;

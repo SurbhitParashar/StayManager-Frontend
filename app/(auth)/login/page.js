@@ -35,8 +35,8 @@ export default function Login() {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      await API.post('/auth/login', form);
-      window.location.href = '/dashboard';
+      const { data } = await API.post('/auth/login', form);
+      window.location.href = data.user.permissions.includes('data.write') ? '/dashboard' : '/history';
     } catch {
       alert('Invalid credentials');
     } finally {
